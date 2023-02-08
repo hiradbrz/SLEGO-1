@@ -1,0 +1,2 @@
+# SLEGO-Lite
+Software Lego
