@@ -1,0 +1,37 @@
+{
+    "data_source": "yahoo_finance",
+    "dataset_type_id": "http://bucket-name.s3-website-Region.amazonaws.com",
+    "time_object": {
+        "timestamp": "2023-02-09 07:00:52.787880",
+        "timezone": "GMT+11"
+    },
+    "events": [
+        {
+            "time_object": {
+                "timestamp": "2019-07-21 13:04:40.3401012",
+                "duration": 1,
+                "timezone": "GMT+11"
+            },
+            "event_type": "stock quote",
+            "attribute": {
+                "1y Target Est": 169.17,
+                "52 Week Range": "124.17 - 179.61",
+                "Ask": "0.00 x 900",
+                "Avg. Volume": 77873885.0,
+                "Beta (5Y Monthly)": 1.28,
+                "Bid": "0.00 x 800",
+                "Day's Range": "151.17 - 154.58",
+                "EPS (TTM)": 5.89,
+                "Earnings Date": "Apr 26, 2023 - May 01, 2023",
+                "Ex-Dividend Date": "Feb 10, 2023",
+                "Forward Dividend & Yield": "0.92 (0.59%)",
+                "Market Cap": "2.404T",
+                "Open": 153.88,
+                "PE Ratio (TTM)": 25.79,
+                "Previous Close": 154.65,
+                "Quote Price": 151.9199981689453,
+                "Volume": 64120079.0
+            }
+        }
+    ]
+}

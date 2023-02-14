@@ -1,0 +1,64 @@
+{
+    "data_source": "yahoo_finance",
+    "dataset_type_id": "http://bucket-name.s3-website-Region.amazonaws.com",
+    "time_object": {
+        "timestamp": "2023-02-09 07:00:52.787880",
+        "timezone": "GMT+11"
+    },
+    "events": [
+        {
+            "time_object": {
+                "timestamp": "1980-12-12 00:00:00.000000",
+                "duration": 86400,
+                "timezone": "GMT+11"
+            },
+            "event_type": "stock ohlc",
+            "attribute": {
+                "open": 0.1283479929,
+                "high": 0.1289059967,
+                "low": 0.1283479929,
+                "close": 0.1283479929,
+                "adjclose": 0.0998737887,
+                "volume": 469033600,
+                "ticker": "AAPL",
+                "date": "1980-12-12"
+            }
+        },
+        {
+            "time_object": {
+                "timestamp": "1980-12-15 00:00:00.000000",
+                "duration": 86400,
+                "timezone": "GMT+11"
+            },
+            "event_type": "stock ohlc",
+            "attribute": {
+                "open": 0.1222100034,
+                "high": 0.1222100034,
+                "low": 0.1216519997,
+                "close": 0.1216519997,
+                "adjclose": 0.0946633071,
+                "volume": 175884800,
+                "ticker": "AAPL",
+                "date": "1980-12-15"
+            }
+        },
+        {
+            "time_object": {
+                "timestamp": "1980-12-16 00:00:00.000000",
+                "duration": 86400,
+                "timezone": "GMT+11"
+            },
+            "event_type": "stock ohlc",
+            "attribute": {
+                "open": 0.1132809967,
+                "high": 0.1132809967,
+                "low": 0.1127230003,
+                "close": 0.1127230003,
+                "adjclose": 0.0877152458,
+                "volume": 105728000,
+                "ticker": "AAPL",
+                "date": "1980-12-16"
+            }
+        }
+    ]
+}

@@ -1,0 +1,102 @@
+{
+    "data_source": "yahoo_finance",
+    "dataset_type_id": "http://bucket-name.s3-website-Region.amazonaws.com",
+    "time_object": {
+        "timestamp": "2023-02-09 07:00:52.787880",
+        "timezone": "GMT+11"
+    },
+    "events": [
+        {
+            "time_object": {
+                "timestamp": "2023-02-08 22:00:19.000000",
+                "duration": 86400,
+                "timezone": "GMT+11"
+            },
+            "event_type": "stock news",
+            "attribute": {
+                "summary": "(Bloomberg) -- Apple Inc. is hiring its first chief people officer and shifting human resources duties from its head of retail, overhauling the way the tech giant hires and supports employees.Most Read from BloombergMeta Asks Many Managers to Get Back to Making Things or LeaveGeorge Santos Gets Into Fight With Mitt Romney at State of the Union DebutDeSantis Chides Trump as Republicans\u2019 2024 Presidential Race Heats UpChinese Balloon Was Part of Years-Long Spying Program, US SaysRussia Will Fail t",
+                "summary_detail": {
+                    "type": "text/html",
+                    "language": null,
+                    "base": "https://feeds.finance.yahoo.com/rss/2.0/headline?s=aapl&region=US&lang=en-US",
+                    "value": "(Bloomberg) -- Apple Inc. is hiring its first chief people officer and shifting human resources duties from its head of retail, overhauling the way the tech giant hires and supports employees.Most Read from BloombergMeta Asks Many Managers to Get Back to Making Things or LeaveGeorge Santos Gets Into Fight With Mitt Romney at State of the Union DebutDeSantis Chides Trump as Republicans\u2019 2024 Presidential Race Heats UpChinese Balloon Was Part of Years-Long Spying Program, US SaysRussia Will Fail t"
+                },
+                "id": "5ae84a53-55ae-3b55-8468-9ca26170b8cc",
+                "guidislink": false,
+                "links": [
+                    {
+                        "rel": "alternate",
+                        "type": "text/html",
+                        "href": "https://finance.yahoo.com/news/apple-hires-first-people-officer-220019649.html?.tsrc=rss"
+                    }
+                ],
+                "link": "https://finance.yahoo.com/news/apple-hires-first-people-officer-220019649.html?.tsrc=rss",
+                "published": "Wed, 08 Feb 2023 22:00:19 +0000",
+                "published_parsed": [
+                    2023,
+                    2,
+                    8,
+                    22,
+                    0,
+                    19,
+                    2,
+                    39,
+                    0
+                ],
+                "title": "Apple Hires Its First People Officer in Executive Reshuffle",
+                "title_detail": {
+                    "type": "text/plain",
+                    "language": null,
+                    "base": "https://feeds.finance.yahoo.com/rss/2.0/headline?s=aapl&region=US&lang=en-US",
+                    "value": "Apple Hires Its First People Officer in Executive Reshuffle"
+                }
+            }
+        },
+        {
+            "time_object": {
+                "timestamp": "2023-02-08 21:51:39.000000",
+                "duration": 86400,
+                "timezone": "GMT+11"
+            },
+            "event_type": "stock news",
+            "attribute": {
+                "summary": "The artificial intelligence company will help power a Bing chat product that could upend the search business and advertising with it.  Shares of Apple (NASDAQ: AAPL) fell as much as 2.3% in trading Wednesday, Amazon (NASDAQ: AMZN) dropped 3.3%, and Meta Platforms (NASDAQ: META) fell up to 4.5%.",
+                "summary_detail": {
+                    "type": "text/html",
+                    "language": null,
+                    "base": "https://feeds.finance.yahoo.com/rss/2.0/headline?s=aapl&region=US&lang=en-US",
+                    "value": "The artificial intelligence company will help power a Bing chat product that could upend the search business and advertising with it.  Shares of Apple (NASDAQ: AAPL) fell as much as 2.3% in trading Wednesday, Amazon (NASDAQ: AMZN) dropped 3.3%, and Meta Platforms (NASDAQ: META) fell up to 4.5%."
+                },
+                "id": "60c92fe8-b6e8-3bc0-b378-b5bc5724d59d",
+                "guidislink": false,
+                "links": [
+                    {
+                        "rel": "alternate",
+                        "type": "text/html",
+                        "href": "https://finance.yahoo.com/m/60c92fe8-b6e8-3bc0-b378-b5bc5724d59d/why-apple%2C-amazon%2C-and-meta.html?.tsrc=rss"
+                    }
+                ],
+                "link": "https://finance.yahoo.com/m/60c92fe8-b6e8-3bc0-b378-b5bc5724d59d/why-apple%2C-amazon%2C-and-meta.html?.tsrc=rss",
+                "published": "Wed, 08 Feb 2023 21:51:39 +0000",
+                "published_parsed": [
+                    2023,
+                    2,
+                    8,
+                    21,
+                    51,
+                    39,
+                    2,
+                    39,
+                    0
+                ],
+                "title": "Why Apple, Amazon, and Meta Platforms All Fell on Microsoft's AI News",
+                "title_detail": {
+                    "type": "text/plain",
+                    "language": null,
+                    "base": "https://feeds.finance.yahoo.com/rss/2.0/headline?s=aapl&region=US&lang=en-US",
+                    "value": "Why Apple, Amazon, and Meta Platforms All Fell on Microsoft's AI News"
+                }
+            }
+        }
+    ]
+}
