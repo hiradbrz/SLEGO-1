@@ -90,6 +90,56 @@ def convert_adage3_attribute_json2csv(filepath:str='jsonfile_ohlc.json', csv_nam
 
     return df
 
+def visualize_adage3_csv(filepath='data.csv', output_html_name='adage3_data_viz'):
+    from pandas.api.types import is_number
+    '''
+    Result will be saved in current path as a csv file 
+    '''
+    import plotly.express as px
+    import pandas as pd
+    from plotly.subplots import make_subplots
+    import plotly.graph_objs as go
+
+    df = pd.read_csv(filepath, index_col=0)
+    timestamps = df.index
+    df['timestamps'] =timestamps
+    df.insert(0, 'timestamps', df.pop('timestamps'))
+    col_names = list(df.columns)
+    coltypes = list(df.dtypes)
+
+    specs =[[{"type": "table"}]]
+
+    for col in col_names:
+        specs.append([{"type": "scatter"}])
+
+    fig = make_subplots(
+        rows=df.shape[1]+1, cols=1,
+        shared_xaxes=False,
+        vertical_spacing=0.03,
+        subplot_titles=['timestamps']+col_names,
+        specs=specs)
+
+    fig.add_trace(go.Table(header=dict(values=col_names,font=dict(size=10),align="left"),
+            cells=dict(values=[df[k].tolist() for k in df.columns],align = "left")),row=1, col=1)
+
+    for i in range(len(col_names)):
+        if coltypes[i]== 'O':
+        
+            y_out= pd.to_numeric(df[col_names[i]], errors='ignore', downcast=None)
+            if not is_number(y_out):
+                y_out= df[col_names[i]].apply(len)
+            #fig.add_scatter(x=timestamps, y=y_out, hovertemplate=df[col_names[i]],  row=1+i, col=1, name=col_names[i])
+            fig.add_trace(go.Scatter(x=timestamps, y=y_out, hovertemplate=df[col_names[i]], name=col_names[i]), row=2+i, col=1)
+        else:
+            #fig.add_scatter(x=timestamps, y=df[col_names[i]], row=1+i, col=1, name=col_names[i])
+            fig.add_trace(go.Scatter(x=timestamps, y=df[col_names[i]],  name=col_names[i]), row=2+i, col=1)
+
+    # Show the plot
+    fig.update_layout(height=250*len(col_names), title_text="Visalized ADAGE3 data" ,legend=dict(orientation="h" ))
+    fig.write_html(output_html_name+".html")
+
+    return df
+
 def validate(instance, schema, cls=None, *args, **kwargs):
     """
     Validate an instance under the given schema.
