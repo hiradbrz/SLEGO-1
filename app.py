@@ -1,3 +1,5 @@
+# %% [markdown]
+# # Library
 
 # %%
 import requests
@@ -14,11 +16,12 @@ import os
 import webbrowser
 from IPython.display import clear_output
 pn.extension(sizing_mode = 'stretch_width')
-pn.extension('ace', 'jsoneditor')
 import boto3
 import ast
 import importlib
 
+ACCESS_KEY = os.getenv('AWS_ACCESS_KEY_ID') # you dont need this if apprunner has the right permission
+SECRET_KEY = os.getenv('AWS_SECRET_ACCESS_KEY') # you dont need this if apprunner has the right permission
 
 # %% [markdown]
 # # Login AWS
@@ -26,7 +29,10 @@ import importlib
 # %%
 def __login_aws():
     # Create a session using your AWS credentials
-    s3 = boto3.client('s3')
+    # you dont need ACCESS_KEY & SECRET_KEY if apprunner has the right permission
+    s3 = boto3.client('s3',aws_access_key_id=ACCESS_KEY, 
+                      aws_secret_access_key=SECRET_KEY)
+    
     bucket_name = 'unsw-cse-research-slego'  # replace with your bucket name
     folder_name = 'func' 
     return s3, bucket_name, folder_name
@@ -88,7 +94,7 @@ def merge_py_files(directory, output_file):
 
 # %%
 class FuncSelector(param.Parameterized):
-    def __init__(self, module, datapath='./data/', tag='first', s3=None):
+    def __init__(self, module, datapath='./data/', tag='first',open_in_browser= True, s3=None):
         self.s3=s3
         self.tag=tag
         self.data_format = [pd.DataFrame ] #['_data']
@@ -96,11 +102,12 @@ class FuncSelector(param.Parameterized):
         self.datapath = datapath
         self.module = module
         # self.funcs_dict, self.funcs_name_list, self.funcs_argument_list = self.get_function_name() #+type list
+        
         self.btn_compute = pn.widgets.Button(name='Compute Block', button_type = 'primary')
-        self.sel_func = pn.widgets.MultiChoice(name='Select an analytic service:', options=[''])
+        self.sel_func = pn.widgets.MultiChoice(name='Select an analytic service:', options=[''], max_items =1)
         self.update_fuctionlist_ext()
         self.card_param = pn.Card(title='Input parameters:')
-        self.sel_func.param.watch(self.select_func_change, 'value') # why not work when i reduce items in select_func_change
+        self.sel_func.param.watch(self.select_func_change, 'value')
         self.btn_compute.on_click(self.btn_compute_clicked)
         self.func_name = None
         self.func_param_dict = None
@@ -110,43 +117,16 @@ class FuncSelector(param.Parameterized):
         self.result = None
         self.display = pn.Column()
         self.text_input_save = pn.widgets.TextInput(name='output data names' ,placeholder='result_functionName_[current_time].csv')
-        self.funcs_dict_selected = {}
         self.param_type = {}
         self.data_param_list = []
         self.func_desc = pn.widgets.TextAreaInput(name='Instruction' ,height_policy='max')
         self.msgbox_result = pn.widgets.TextAreaInput( name='Result', placeholder='Display result after runiing service', height_policy='max', min_height=250)
-        self.paramaccordion = pn.Accordion(pn.widgets.TextInput(name='Parameters will be shown if you select a function', value=''))
-        self.paramaccordion.param.watch(self.paramaccordion_change, 'objects')      
-        self.dict_textbox_param =  {}
-        self.func_json_editor = pn.widgets.TextAreaInput(name='Function editor ',height_policy='max', min_height=250)
-        self.btn_update_editor = pn.widgets.Button(name='Update inputs', button_type = 'primary')
-        self.btn_update_editor.on_click(self.btn_update_editor_clicked)
-
-    def btn_update_editor_clicked(self,event):
-        json_string= self.func_json_editor.value
-        json_data = json.loads(json_string)
-        function_list = list(json_data.keys())
-        self.funcs_dict_selected  = json_data
-        self.sel_func.param.unwatch(self.select_func_change)
-        self.sel_func.value = function_list
-        self.sel_func.param.watch(self.select_func_change, 'value')
-        # time.sleep(5)
-        for func_name in function_list:
-            list_textboxes = self.dict_textbox_param[func_name]
-            for textbox in list_textboxes:
-                # textbox.param.unwatch(self.text_changed)
-                param_name = textbox.name
-                textbox.value = json_data[func_name][param_name]
-                # textbox.param.watch(self.text_changed,'value')
-
-    def paramaccordion_change(self,event):
-        if len(self.paramaccordion.objects)>0:
-            self.paramaccordion.active = [len(self.paramaccordion.objects)-1]
 
     def update_fuctionlist_ext(self):
         self.funcs_dict, self.funcs_name_list, self.funcs_argument_list = self.get_function_name()
         # without '__'
         self.funcs_name_list = [x for x in self.funcs_name_list if not x.startswith('__')]
+
         self.sel_func.options = ['']+self.funcs_name_list
 
     def btn_compute_clicked(self,event):
@@ -154,60 +134,42 @@ class FuncSelector(param.Parameterized):
         self.btn_compute.button_type = 'warning'
         self.display.clear()
         self.messagebox.placeholder = 'Computing...please wait'
-        self.msgbox_result.value =''
-        for k,v in self.funcs_dict_selected.items():
-            func_name = k
-            func_param_dict = v
-            func = eval('self.module.'+ func_name)
-            start_time = time.time()
-            self.result = func(**func_param_dict)
-            exec_time = time.time() - start_time
-            self.msgbox_result.value += '\n'+ '#===Service: ' +func_name+ '===#' +'\n'+str(self.result)
-            time.sleep(0.5)
+        start_time = time.time()
+        self.result = self.func(**self.func_param_dict)
+        exec_time = time.time() - start_time
         self.messagebox.placeholder = 'Task finished with time: '+str( round(exec_time,3))+ ' seconds.'
         self.btn_compute.button_type = 'success'
+        self.msgbox_result.value = str(self.result)
     
     def select_func_change(self,event):
-        self.func_desc.value = ""
-
-        self.paramaccordion.clear()
-        funcs_dict_selected = {}
-        self.func_json_editor.value = ''
-        functions = self.sel_func.value
-        dict_textbox_param = {}
-
-        for function in functions:
-        # for loop but skip empty input
-            if function == '':
-                continue
-            func = eval('self.module.'+function)
-            func_param_dict = self.funcs_dict[function]
-            param_inputs = []   
-            dict_textbox_param[function] = []
-            for k,v in func_param_dict.items():
-                arg_input = pn.widgets.LiteralInput(name=k, value=v, tags= [function])
-                arg_input.param.watch(self.text_changed,'value')
-                param_inputs.append(arg_input)
-            self.paramaccordion.append(pn.Column(*param_inputs, name=function))
-            funcs_dict_selected[function] = func_param_dict 
-            dict_textbox_param[function] = param_inputs
-            self.func_desc.value += "#==="+ function+"===#\n"
-            self.func_desc.value += str(func.__doc__)
-            self.func_desc.value += "\n"
-
+        self.func_desc.value=''
+        self.display.clear()
+        self.btn_compute.button_type = 'primary'
+        self.card_param.clear()
         if self.sel_func.value == []:
-            self.paramaccordion.append(pn.widgets.TextInput(name='Parameters will be shown if you select a function', value=''))
+            return
+        self.func_value = self.sel_func.value[-1]
+        self.func_name = self.func_value 
+        self.func = eval('self.module.'+self.func_name)
+        self.param_type = inspect.getfullargspec(self.func)[6] 
+        self.func_param_dict = self.funcs_dict[self.func_value ]
+        self.param_inputs = []    
+        for k,v in self.func_param_dict.items():
+            arg_input = pn.widgets.LiteralInput(name=k, value=v)
+            arg_input.param.watch(self.text_changed,'value')
+            self.param_inputs.append(arg_input)
 
-        # update widget text input area in string and json format
-        self.func_json_editor.value = json.dumps(funcs_dict_selected, indent=4)
-        self.dict_textbox_param = dict_textbox_param
-        self.funcs_dict_selected  = funcs_dict_selected
+        self.card_param.objects = self.param_inputs
+        #self.func_desc.value = self.func.__doc__
+        if self.func.__doc__ is not None:
+            self.func_desc.value = self.func.__doc__
+        else:
+            self.func_desc.value = ""  # or some default text
         
     def text_changed(self,event):
-        func_name = event.obj.tags[0]
-        param_name = event.obj.name
-        self.funcs_dict_selected[func_name][param_name] = event.obj.value
-        self.func_json_editor.value = json.dumps(self.funcs_dict_selected, indent=4)
+        self.btn_compute.button_type = 'primary'
+        #https://panel.holoviz.org/user_guide/Links.html?highlight=event
+        self.func_param_dict[event.obj.name] = event.obj.value
 
     def get_function_name(self):
         funcs = inspect.getmembers(self.module, inspect.isfunction)
@@ -217,22 +179,17 @@ class FuncSelector(param.Parameterized):
         funcs_argument_default_list = [inspect.getfullargspec(fun[1])[3] if inspect.getfullargspec(fun[1])[3] is not None else [] for fun in funcs]
 
         funcs_dict = [{f:dict(zip(a,d))} for f,a,d in zip(funcs_name_list, funcs_argument_list, funcs_argument_default_list)]
+        
         funcs_dict =dict(ChainMap(*funcs_dict ))
         return funcs_dict, funcs_name_list, funcs_argument_list #+type list
 
     @property
     def view(self):
         return pn.Column(pn.Row( 
-            pn.Column(pn.Tabs(('Function selector',self.sel_func), ('Function editor',pn.Column(self.func_json_editor, self.btn_update_editor))),pn.Row(self.messagebox),self.btn_compute,self.msgbox_result),
-            self.paramaccordion,
+            pn.Column(self.sel_func,pn.Row(self.messagebox),self.btn_compute,self.msgbox_result),
+            self.card_param,
             self.func_desc))
-
-
-# import func
-# importlib.reload(func)
-# funcsel = FuncSelector(func)
-
-# funcsel.view.show()
+   
 
 # %% [markdown]
 # # File Space
@@ -452,4 +409,5 @@ class APP(param.Parameterized):
 
 app = APP()
 app.template.servable()
+
 
