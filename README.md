@@ -14,3 +14,13 @@ Software Lego
 
 1. ADAGE3 data model- generate sample data: https://colab.research.google.com/drive/1Tg69SZppODJuQ8cMiNZyRfbCKemUV28i?usp=sharing
 2. ADAGE3 data model- visualize data: https://drive.google.com/file/d/1QfPNwkggqpq4A2sybaXpkGQzyH66apUA/view?usp=sharing
+
+# Deploying
+1. Build this repository using Docker and upload it to ECR
+2. In Amazon ECS, create a Task Definition
+   1. specifying the repository & version of the container images in Image URI.
+   2. For Port Mapping, use 8080 or what has been specified in the `Dockerfile`
+   3. Add AWS Credentials to Environment Variables.
+ 3. Create a cluster in Amazon ECS, you can keep most of the options default.
+ 4. In the new cluster, create a service, and specify the Task defined in step 2.
+ 5. To get the IP address, when the service is bootstrapped, you can find it in the cluster > task > networking.
