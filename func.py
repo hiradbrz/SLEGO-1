@@ -12,11 +12,3 @@ def print_test(input_text:str='Hello'):
     """
 
     return input_text
-
-
-def print_test2():                   
-    """ 
-    This is the function for testing 2
-    """
-
-    return 'hi'
