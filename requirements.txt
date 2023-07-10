@@ -17,4 +17,4 @@ seaborn
 statsmodels
 yahoo-fin
 yfinance
-
+vectorbt
