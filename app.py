@@ -20,9 +20,6 @@ import boto3
 import ast
 import importlib
 
-ACCESS_KEY = os.getenv('AWS_ACCESS_KEY_ID') # you dont need this if apprunner has the right permission
-SECRET_KEY = os.getenv('AWS_SECRET_ACCESS_KEY') # you dont need this if apprunner has the right permission
-
 # %% [markdown]
 # # Login AWS
 
@@ -30,8 +27,7 @@ SECRET_KEY = os.getenv('AWS_SECRET_ACCESS_KEY') # you dont need this if apprunne
 def __login_aws():
     # Create a session using your AWS credentials
     # you dont need ACCESS_KEY & SECRET_KEY if apprunner has the right permission
-    s3 = boto3.client('s3',aws_access_key_id=ACCESS_KEY, 
-                      aws_secret_access_key=SECRET_KEY)
+    s3 = boto3.client('s3')
     
     bucket_name = 'unsw-cse-research-slego'  # replace with your bucket name
     folder_name = 'func' 
