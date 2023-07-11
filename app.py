@@ -15,14 +15,40 @@ from collections import ChainMap
 import os
 import webbrowser
 from IPython.display import clear_output
-pn.extension(sizing_mode = 'stretch_width')
+
 import boto3
 import ast
 import importlib
+import logging
 
+import panel as pn
+
+current_path = os.getcwd()
+value =current_path
+print("===================================================================================")
+print(value)
+
+
+def overwrite_file(filename, content):
+    with open(filename, 'w') as f:
+        f.write(content)
+
+# Define the content of your new func.py
+content = """
+def test(input:str = 'Hello'):
+    return input
+"""
+
+overwrite_file('func.py', content)
+
+pn.extension(sizing_mode = 'stretch_width')
+pn.extension('terminal', console_output='disable')
 # %% [markdown]
 # # Login AWS
-
+import func
+def test2(input:str = 'Hello'):
+    importlib.reload(func)
+test2()
 # %%
 def __login_aws():
     # Create a session using your AWS credentials
@@ -307,12 +333,31 @@ class FuncSpace(param.Parameterized):
         self.uploder = pn.widgets.FileInput()
         self.btn_update = pn.widgets.Button(name='Update function', button_type = 'primary')
         self.btn_update.on_click(self.update_function)
+        
+        current_path = os.getcwd()
+        value =current_path
+        self.messagebox.value = value
 
     def update_function(self,event):
         delete_files_in_folder('./funcfolder/'+self.folder_name )
         download_s3_folder(s3=s3, bucket_name=self.bucket_name, prefix=self.folder_name, download_path='funcfolder')
         merge_py_files('./funcfolder/'+self.folder_name, 'func.py')
-        importlib.reload(func)
+        
+        current_path = os.getcwd()
+        value =current_path
+        self.messagebox.value = value
+
+        module = importlib.import_module('func')
+        #module = sys.modules['func']
+        importlib.reload(module)
+        #importlib.reload(func)
+        # module_name = 'func'
+        # # Import the module if it's not already imported
+        # if module_name not in sys.modules:
+        #     module = importlib.import_module(module_name)
+        # else:
+        #     module = sys.modules[module_name]
+
 
     def show_file(self,event):
         if self.filemultiselect.value == []:
