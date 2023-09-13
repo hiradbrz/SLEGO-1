@@ -28,19 +28,19 @@ except:
 
 import datetime
 
-# # Add this directory to the system path
-# sys.path.insert(0, current_directory)
+# Add this directory to the system path
+sys.path.insert(0, current_directory)
 
-# def overwrite_file(filename, content):
-#     with open(filename, 'w') as f:
-#         f.write(content)
+def overwrite_file(filename, content):
+    with open(filename, 'w') as f:
+        f.write(content)
 
-# # Define the content of your new func.py
-# content = """
-# def test(input:str = 'Hello'):
-#     return input
-# """
-# overwrite_file('func.py', content)
+# Define the content of your new func.py
+content = """
+def test(input:str = 'Hello'):
+    return input
+"""
+overwrite_file('func.py', content)
 
 # %% [markdown]
 # # Login AWS
