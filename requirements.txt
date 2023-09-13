@@ -18,3 +18,4 @@ statsmodels
 yahoo-fin
 yfinance
 vectorbt
+backtrader
