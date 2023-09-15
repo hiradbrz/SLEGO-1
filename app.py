@@ -2,31 +2,31 @@
 # # Library
 
 # %%
-import requests
-import json
-import sys
-import panel as pn
-import pandas as pd
-from io import StringIO
-import inspect
-import time
-import param
-from collections import ChainMap
-import os
-import webbrowser
-from IPython.display import clear_output
-pn.extension(sizing_mode = 'stretch_width')
-pn.extension('ace', 'jsoneditor')
-import boto3
 import ast
+import datetime
 import importlib
+import inspect
+import json
+import os
+import sys
+import time
+from collections import ChainMap
+from IPython.display import clear_output
+
+import boto3
+import pandas as pd
+import panel as pn
+import param
+
+# Ensuring Panel extensions are loaded
+pn.extension(sizing_mode='stretch_width')
+pn.extension('ace', 'jsoneditor')
+
 # Get the directory that the current script is in
 try:
     current_directory = os.path.dirname(os.path.realpath(__file__))
 except:
     current_directory = os.getcwd()
-
-import datetime
 
 # Add this directory to the system path
 sys.path.insert(0, current_directory)
@@ -42,6 +42,7 @@ def test(input:str = 'Hello'):
 """
 overwrite_file('func.py', content)
 
+
 # %% [markdown]
 # # Login AWS
 
@@ -53,12 +54,10 @@ def __login_aws():
     bucket_name = 'unsw-cse-research-slego'  # replace with your bucket name
     folder_name = 'func' 
     return s3, bucket_name, folder_name
-
 s3, bucket_name, folder_name = __login_aws()
-s3
 
 # %% [markdown]
-# # Define fucntion file
+# # Define fucntion folder
 
 # %%
 
@@ -74,7 +73,7 @@ def delete_files_in_folder(folder):
 # def delete_files_in_folder(folder):
 #     pass
 
-#delete_files_in_folder('./funcfolder/function')
+delete_files_in_folder('./funcfolder/function')
 
 # %%
 
@@ -125,13 +124,16 @@ class FuncSelector(param.Parameterized):
         self.datapath = datapath
         self.module = module
         # self.funcs_dict, self.funcs_name_list, self.funcs_argument_list = self.get_function_name() #+type list
-        self.btn_compute = pn.widgets.Button(name='Compute Block', button_type = 'primary')
+        self.btn_compute = pn.widgets.Button(name='Compute Blocks', button_type = 'primary')
+        self.btn_updatefunc = pn.widgets.Button(name='Update Services', button_type = 'light')
+
         self.sel_func = pn.widgets.MultiChoice(name='Select analytic services:', options=[''])
         self.update_fuctionlist_ext()
         self.card_param = pn.Card(title='Input parameters:')
         self.sel_func.param.watch(self.select_func_change, 'value') # why not work when i reduce items in select_func_change
 
         self.btn_compute.on_click(self.btn_compute_clicked)
+        self.btn_updatefunc.on_click(self.btn_updatefunc_clicked)
         self.func_name = None
         self.func_param_dict = None
         self.func = None
@@ -152,6 +154,20 @@ class FuncSelector(param.Parameterized):
         self.btn_update_editor = pn.widgets.Button(name='Update inputs', button_type = 'primary')
         self.btn_update_editor.on_click(self.btn_update_editor_clicked)
         self.is_update = False
+
+    def btn_updatefunc_clicked(self,event):
+
+        self.msgbox_result.value = 'Updating services...'
+
+        folder_name = 'function/'
+        bucket_name = 'unsw-cse-research-slego'
+        delete_files_in_folder('./funcfolder/'+folder_name )
+        download_s3_folder(s3=s3, bucket_name=bucket_name, prefix=folder_name, download_path='funcfolder')
+        merge_py_files('./funcfolder/'+folder_name, 'func.py')
+        sys.path.insert(0, current_directory)
+        importlib.reload(eval('func'))
+        self.update_fuctionlist_ext()
+        self.msgbox_result.value = 'Services updated.'
 
     def btn_update_editor_clicked(self,event):
         json_string= self.func_json_editor.value
@@ -259,7 +275,8 @@ class FuncSelector(param.Parameterized):
         # self.update_options(event)
         # self.sel_func.param.trigger('options')
         # self.sel_func.value = self.old_selected_value
-        
+    
+
 
     def text_changed(self,event):
         func_name = event.obj.tags[0]
@@ -301,7 +318,7 @@ class FuncSelector(param.Parameterized):
     @property
     def view(self):
         return pn.Column(pn.Row( 
-            pn.Column(pn.Tabs(('Function selector',self.sel_func), ('Function editor',pn.Column(self.func_json_editor, self.btn_update_editor))),pn.Row(self.messagebox),self.btn_compute,self.msgbox_result),
+            pn.Column(pn.Tabs(('Function selector',self.sel_func), ('Function editor',pn.Column(self.func_json_editor, self.btn_update_editor))),pn.Row(self.messagebox),self.btn_compute,self.btn_updatefunc,self.msgbox_result),
             self.paramaccordion,
             self.func_desc))
 # import func
@@ -320,11 +337,11 @@ from botocore.exceptions import ClientError
 import webbrowser
 
 class FileSpace(param.Parameterized):
-    def __init__(self,s3):
+    def __init__(self,s3, folder_name):
         # Create a session using your AWS credentials
         self.s3 = s3
         self.bucket_name = 'unsw-cse-research-slego'  # replace with your bucket name
-        self.folder_name = 'data' 
+        self.folder_name = folder_name 
         self.items = []
         self.filemultiselect = pn.widgets.MultiSelect(name='MultiSelect', size=20)
         self.messagebox = pn.widgets.TextAreaInput( name='File details', placeholder='Click on the item for the details.', sizing_mode='stretch_both', height_policy='min', min_height=250)
@@ -411,211 +428,8 @@ class FileSpace(param.Parameterized):
                          self.messagebox)
 
 # # test 
-# file_space = FileSpace(s3)
+# file_space = FileSpace(s3=s3, folder_name='data')
 # file_space.view.show()
-
-
-# %% [markdown]
-# # Record Space
-
-# %%
-import logging
-import boto3
-from botocore.exceptions import ClientError
-
-class RecordSpace(param.Parameterized):
-    def __init__(self,s3):
-        # Create a session using your AWS credentials
-        self.s3 = s3
-        self.bucket_name = 'unsw-cse-research-slego'  # replace with your bucket name
-        self.folder_name = 'record' 
-        self.items = []
-        self.filemultiselect = pn.widgets.MultiSelect(name='MultiSelect', size=20)
-        self.messagebox = pn.widgets.TextAreaInput( name='File details', placeholder='Click on the item for the details.', sizing_mode='stretch_both', height_policy='min', min_height=250)
-        # self.filemultiselect.param.watch(self.filemultiselect_change, 'value')
-        self.refresh_folder()
-        self.button_download = pn.widgets.Button(name='Download', button_type = 'primary')
-        self.button_upload = pn.widgets.Button(name='Upload', button_type = 'primary')
-        self.button_showdetails = pn.widgets.Button(name='Details', button_type = 'primary')
-        self.button_download.on_click(self.download_file)
-        self.button_upload.on_click(self.upload_file)
-        self.button_showdetails.on_click(self.show_file)
-        self.uploder = pn.widgets.FileInput()
-
-        self.btn_update = pn.widgets.Button(name='Update list', button_type = 'primary')
-        self.btn_update.on_click(self.update_function)
-
-    def update_function(self,event):
-        self.refresh_folder()
-
-    def show_file(self,event):
-        if self.filemultiselect.value == []:
-            return
-        object_name = self.filemultiselect.value[-1]
-        result = self.s3.get_object(Bucket=self.bucket_name, Key=object_name) 
-        text = result["Body"].read().decode()
-        self.messagebox.value = text
-
-    def upload_file(self, event):
-        try:
-            file_bytes = self.uploder.value
-            dest_name = self.folder_name+'/'+self.uploder.filename
-
-            # Ensure there's a file to upload
-            if not file_bytes or not dest_name:
-                self.messagebox.value = "Please select a valid file."
-                return
-
-            # Upload to S3
-            resp = s3.put_object(Bucket=self.bucket_name, Key=dest_name, Body=file_bytes)
-
-            # Check for a successful upload by examining the response (optional)
-            if resp.get('ResponseMetadata', {}).get('HTTPStatusCode') == 200:
-                self.messagebox.value = f'{dest_name} uploaded to {self.bucket_name}/{dest_name} \n'
-            else:
-                self.messagebox.value = f'Error uploading {dest_name} to S3.'
-
-        except Exception as e:
-            # Capture any exception and display an error message
-            self.messagebox.value = f"An error occurred: {str(e)}"
-        self.refresh_folder()
-
-    def download_file(self,event):
-        if self.filemultiselect.value == []:
-            return
-        object_name = self.filemultiselect.value[-1]
-        # Generate a presigned URL for the S3 object
-        #s3_client = boto3.client('s3')
-        try:
-            response = self.s3.generate_presigned_url('get_object',
-                                                        Params={'Bucket': self.bucket_name,
-                                                                'Key': object_name},
-                                                        ExpiresIn=3600)
-        except ClientError as e:
-            logging.error(e)
-            return None
-
-        # The response contains the presigned URL
-        webbrowser.open(response)
-
-    def refresh_folder(self):   
-        self.items =[]
-        response = self.s3.list_objects(Bucket=self.bucket_name, Prefix=self.folder_name  )
-        for item in response['Contents']:
-            self.items.append(item['Key'])
-        self.filemultiselect.options = self.items
-    
-    @property
-    def view(self):
-        return pn.Column(self.filemultiselect, 
-                         pn.Row(self.button_download, self.button_showdetails),
-                         pn.Row(self.uploder, self.button_upload),
-                         self.btn_update,
-                         self.messagebox)
-
-
-# %% [markdown]
-# # Function Space
-
-# %%
-import logging
-import boto3
-from botocore.exceptions import ClientError
-
-class FuncSpace(param.Parameterized):
-    def __init__(self,s3):
-        # Create a session using your AWS credentials
-        self.s3 = s3
-        self.bucket_name = 'unsw-cse-research-slego'  # replace with your bucket name
-        self.folder_name = 'function' 
-        self.items = []
-        self.filemultiselect = pn.widgets.MultiSelect(name='MultiSelect', size=20)
-        self.messagebox = pn.widgets.TextAreaInput( name='File details', placeholder='Click on the item for the details.', sizing_mode='stretch_both', height_policy='min', min_height=250)
-        # self.filemultiselect.param.watch(self.filemultiselect_change, 'value')
-        self.refresh_folder()
-        self.button_download = pn.widgets.Button(name='Download', button_type = 'primary', disabled = False)
-        self.button_upload = pn.widgets.Button(name='Upload', button_type = 'primary')
-        self.button_showdetails = pn.widgets.Button(name='Details', button_type = 'primary', disabled = False)
-        self.button_download.on_click(self.download_file)
-        self.button_upload.on_click(self.upload_file)
-        self.button_showdetails.on_click(self.show_file)
-        self.uploder = pn.widgets.FileInput()
-        self.btn_update = pn.widgets.Button(name='Update list', button_type = 'primary')
-        self.btn_update.on_click(self.update_function)
-
-    def update_function(self,event):
-        #delete_files_in_folder('./funcfolder/'+self.folder_name )
-        download_s3_folder(s3=s3, bucket_name=self.bucket_name, prefix=self.folder_name, download_path='funcfolder')
-        merge_py_files('./funcfolder/'+self.folder_name, 'func.py')
-        sys.path.insert(0, current_directory)
-        importlib.reload(eval('func'))
-
-    def show_file(self,event):
-        if self.filemultiselect.value == []:
-            return
-        object_name = self.filemultiselect.value[-1]
-        result = self.s3.get_object(Bucket=self.bucket_name, Key=object_name) 
-        text = result["Body"].read().decode()
-        self.messagebox.value = text
-
-    def upload_file(self, event):
-        try:
-            file_bytes = self.uploder.value
-            dest_name = self.folder_name+'/'+self.uploder.filename
-
-            # Ensure there's a file to upload
-            if not file_bytes or not dest_name:
-                self.messagebox.value = "Please select a valid file."
-                return
-
-            # Upload to S3
-            resp = s3.put_object(Bucket=self.bucket_name, Key=dest_name, Body=file_bytes)
-
-            # Check for a successful upload by examining the response (optional)
-            if resp.get('ResponseMetadata', {}).get('HTTPStatusCode') == 200:
-                self.messagebox.value = f'{dest_name} uploaded to {self.bucket_name}/{dest_name} \n'
-            else:
-                self.messagebox.value = f'Error uploading {dest_name} to S3.'
-
-        except Exception as e:
-            # Capture any exception and display an error message
-            self.messagebox.value = f"An error occurred: {str(e)}"
-        self.refresh_folder()
-        
-
-    def download_file(self,event):
-        if self.filemultiselect.value == []:
-            return
-        object_name = self.filemultiselect.value[-1]
-        # Generate a presigned URL for the S3 object
-        #s3_client = boto3.client('s3')
-        try:
-            response = self.s3.generate_presigned_url('get_object',
-                                                        Params={'Bucket': self.bucket_name,
-                                                                'Key': object_name},
-                                                        ExpiresIn=3600)
-        except ClientError as e:
-            logging.error(e)
-            return None
-
-        # The response contains the presigned URL
-        webbrowser.open(response)
-
-    def refresh_folder(self):   
-        self.items =[]
-        response = self.s3.list_objects(Bucket=self.bucket_name, Prefix=self.folder_name  )
-        for item in response['Contents']:
-            self.items.append(item['Key'])
-        self.filemultiselect.options = self.items
-    
-    @property
-    def view(self):
-        return pn.Column(self.filemultiselect, 
-                         pn.Row(self.button_download, self.button_showdetails),
-                         pn.Row(self.uploder, self.button_upload),
-                         self.btn_update,
-                         self.messagebox)
-    
 
 
 # %% [markdown]
@@ -630,18 +444,17 @@ import sys
 class APP(param.Parameterized):
     def __init__(self, open_in_browser=True):
         self.functionslector = FuncSelector(func,s3)
-        self.filespace = FileSpace(s3=s3)
-        self.funcspace = FuncSpace(s3=s3)
-        self.recordspace = RecordSpace(s3=s3)
+        self.filespace = FileSpace(s3=s3, folder_name='data')
+        self.funcspace = FileSpace(s3=s3, folder_name='function')
+        self.recordspace = FileSpace(s3=s3, folder_name='record')
         self.tabs = pn.Tabs(('File Space', self.filespace.view ), ('Function Space', self.funcspace.view), ('Record Space', self.recordspace.view))
         self.template = pn.template.MaterialTemplate(title='SLEGO - User config software')
         self.template.main.append(self.functionslector.view)
         self.template.sidebar.append(self.tabs)
         self.server= self.template.show(open=open_in_browser)
         self.funcspace.btn_update.on_click(self.update_function)
-        self.update_function(event=None)
+        #self.update_function(event=None)
         self.functionslector.btn_compute.on_click(self.btn_compute_clicked)
-        
 
     def btn_compute_clicked(self,event):
         self.filespace.refresh_folder()
@@ -649,13 +462,9 @@ class APP(param.Parameterized):
 
     def update_function(self,event):
         self.functionslector.update_fuctionlist_ext()
+        # trigger the update of function list
+        self.functionslector.sel_func.param.trigger('options')
+        self.functionslector.sel_func.values = ['test','apple']
 
 app = APP()
-
-# %%
-app
-
-# %%
-
-
-
+app.template.servable()

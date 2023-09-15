@@ -13,19 +13,24 @@ symPy
 # Others
 networkx
 
-# # Large or Potential Problematic Libraries
+# Large or Potential Problematic Libraries
 tensorflow
 torch 
 torchvision 
+torchaudio
+opencv-python
 
 # Data Loading and Storage
 boto3
 
-# # Data Manipulation and Analysis
-# pandas-datareader
+# Data Manipulation and Analysis
+pandas-datareader
 dtale
 dask    # parallel computing
 sweetviz
+pandas-profiling
+dataprep
+autoviz
 
 # Visualization Libraries
 bokeh
@@ -39,13 +44,13 @@ folium
 # Web Frameworks and Dashboarding
 panel
 param
-# streamlit
+streamlit
 
-# # Machine Learning
+# Machine Learning
 scikit-learn
-# XGBoost
-# LightGBM
-# CatBoost
+XGBoost
+LightGBM
+CatBoost
 openai
 
 # Statistical Analysis
@@ -70,8 +75,10 @@ scrapy
 requests
 selenium
 
-# # Auto
-# autokeras
+# AutoML
+auto-sklearn
+autokeras
+
 
 # Optimization
 optuna
