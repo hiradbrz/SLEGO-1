@@ -1,4 +1,4 @@
-r# We start from a Python 3.8 base image
+# We start from a Python 3.8 base image
 FROM python:3.9
 
 # Set a directory for our application

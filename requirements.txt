@@ -8,23 +8,25 @@ tqdm
 joblib
 
 # Mathematics Libraries
-symPy
+sympy
 
 # Others
 networkx
 
-# # Large or Potential Problematic Libraries
+# Large or Potential Problematic Libraries
 tensorflow
-torch 
-torchvision 
+torch
+torchvision
 
 # Data Loading and Storage
 boto3
+sqlalchemy
+h5py
+pyarrow
 
-# # Data Manipulation and Analysis
-# pandas-datareader
+# Data Manipulation and Analysis
 dtale
-dask    # parallel computing
+dask
 sweetviz
 
 # Visualization Libraries
@@ -39,14 +41,9 @@ folium
 # Web Frameworks and Dashboarding
 panel
 param
-# streamlit
 
-# # Machine Learning
+# Machine Learning
 scikit-learn
-# XGBoost
-# LightGBM
-# CatBoost
-openai
 
 # Statistical Analysis
 statsmodels
@@ -59,19 +56,15 @@ backtrader
 pyfolio
 QuantStats
 
-# Data Loading and Storage
-sqlalchemy
-h5py
-parquet
-
 # Web Scraping
 beautifulsoup4
 scrapy
 requests
 selenium
 
-# # Auto
-# autokeras
+# Auto ML
+autokeras
+autoPyTorch
 
 # Optimization
 optuna
@@ -80,3 +73,6 @@ hyperopt
 # Data Source APIs
 alpha_vantage
 quandl
+
+# Additional Libraries
+openpyxl
