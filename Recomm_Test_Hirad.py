@@ -132,7 +132,8 @@ def generate_change_summary(old_pipeline, new_pipeline, graph_db_pipeline):
                 f"Graph Database Pipeline:\n{json.dumps(graph_db_pipeline, indent=2)}\n\n" \
                 f"Summary:"
     
-    openai.api_key = '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'
+    openai.api_key = ''
+    
     # Call to GPT-3.5 API (this is a placeholder - replace with actual API call)
     response = openai.Completion.create(
         engine="gpt-3.5-turbo-instruct",
@@ -158,6 +159,7 @@ new_json_data = {
     "analyze_stock_performance": {"input_s3_file_key": "data/MSFT_stock_data.csv", "output_s3_file_key": "data/MSFT_stock_analysis.csv", "goal": "analyze stock data"}
 }
 
+    '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'
 
 knowledge_graph_drawer = KnowledgeGraphDrawer(json_data, 'knowledge_graph2.html')
 recommender = KnowledgeGraphRecommender(json_data)
