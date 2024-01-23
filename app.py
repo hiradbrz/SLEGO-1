@@ -13,10 +13,10 @@ import time
 from collections import ChainMap
 from IPython.display import clear_output
 import boto3
-import pandas as pd
 import panel as pn
 import param
 
+import pandas as pd
 # Ensuring Panel extensions are loaded
 pn.extension(sizing_mode='stretch_width')
 pn.extension('ace', 'jsoneditor')
